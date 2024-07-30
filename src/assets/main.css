@@ -10,6 +10,10 @@ body {
   height: 100vh;
 }
 
+h1 {
+  font-family: RedHatMono;
+}
+
 @font-face {
   font-family: RedHatMono;
   src:  local("RedHatMono"), url("/fonts/RedHatMono/RedHatMono-VariableFont_wght.ttf");
