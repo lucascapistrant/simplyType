@@ -1,17 +1,19 @@
 <template>
-  <div class="typingArea" ref="typingArea">
-    <span v-for="(item, index) in textContent" :key="index"> {{ item }}</span>
+  <div class="typingArea" ref="typingArea" @focus="focusTypingArea()" @blur="blurTypingArea()" tabindex="0">
+    <span v-for="(item, index) in textContent" :key="index" class="letter"> {{ item }}</span>
+    <span class="typingCursor" ref="typingCursor">.</span>
   </div>
 </template>
 
 <script>
 export default {
   name: 'PageTyper',
-  mounted() {
-    window.addEventListener("keydown", this.inputHandler)
-  },
   data() {
     return {
+      canType: false,
+      isTyping: false,
+      lettersTyped: 0,
+      placeHolderText: 'Start Typing Here',
       nonCharacterKeys: [
         "Shift", "Control", "Alt", "CapsLock", "Backspace", "Tab", "Enter", "Escape", 
         "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Insert", "Delete", "Home", 
@@ -19,24 +21,54 @@ export default {
         "PrintScreen", "ContextMenu", "Meta", "Win", "AltGraph", "Intl", "ShiftLeft", 
         "ShiftRight", "ControlLeft", "ControlRight", "AltLeft", "AltRight"
       ],
-      textContent: [
-        "L", "o", "r", "e", "m", " ", "i", "p", "s", "u", "m", " ", "d", "o", "l", "o", "r", " ", "s", "i", "t", " ", "a", "m", "e", "t", ",", " ", 
-        "c", "o", "n", "s", "e", "c", "t", "e", "t", "u", "r", " ", "a", "d", "i", "p", "i", "s", "c", "i", "n", "g", " ", 
-        "e", "l", "i", "t", ".", " ", "S", "e", "d", " ", "d", "o", " ", "e", "i", "u", "s", "m", "o", "d", " ", "t", "e", "m", "p", "o", "r", " ", 
-        "i", "n", "c", "i", "d", "i", "d", "u", "n", "t", " ", "u", "t", " ", "l", "a", "b", "o", "r", "e", " ", "e", "t", " ", "d", "o", "l", "o", "r", "e", " ", 
-        "m", "a", "g", "n", "a", " ", "a", "l", "i", "q", "u", "a", ".", " ", "U", "t", " ", "e", "n", "i", "m", " ", "a", "d", " ", "m", "i", "n", "i", "m", " ", "v", "e", "n", "i", "a", "m", ",", " ", 
-        "q", "u", "i", "s", " ", "n", "o", "s", "t", "r", "u", "d", " ", "e", "x", "e", "r", "c", "i", "t", "a", "t", "i", "o", "n", " ", "u", "l", "l", "a", "m", "c", "o", " ", 
-        "l", "a", "b", "o", "r", "i", "s", " ", "n", "i", "s", "i", " ", "u", "t", " ", "a", "l", "i", "q", "u", "i", "p", " ", "e", "x", " ", "e", "a", " ", "c", "o", "m", "m", "o", "d", "o", " ", "c", "o", "n", "s", "e", "q", "u", "a", "t", ".", " ", "D", "u", "i", "s", " ", 
-        "a", "u", "t", "e", " ", "i", "r", "u", "r", "e", " ", "d", "o", "l", "o", "r", " ", "i", "n", " ", "r", "e", "p", "r", "e", "h", "e", "n", "d", "e", "r", "i", "t", " ", "i", "n", " ", "v", "o", "l", "u", "p", "t", "a", "t", "e", " ", "v", "e", "l", "i", "t", " ", "e", "s", "s", "e", " ", "c", "i", "l", "l", "u", "m", " ", "d", "o", "l", "o", "r", "e", " ", "e", "u", " ", "f", "u", "g", "i", "a", "t", " ", "n", "u", "l", "l", "a", " ", "p", "a", "r", "i", "a", "t", "u", "r", ".", " ", 
-        "E", "x", "c", "e", "p", "t", "e", "u", "r", " ", "s", "i", "n", "t", " ", "o", "c", "c", "a", "e", "c", "a", "t", " ", "c", "u", "p", "i", "d", "a", "t", "a", "t", " ", "n", "o", "n", " ", "p", "r", "o", "i", "d", "e", "n", "t", ",", " ", "s", "u", "n", "t", " ", "i", "n", " ", "c", "u", "l", "p", "a", " ", "q", "u", "i", " ", "o", "f", "f", "i", "c", "i", "a", " ", "d", "e", "s", "e", "r", "u", "n", "t", " ", "m", "o", "l", "l", "i", "t", " ", "a", "n", "i", "m", " ", "i", "d", " ", "e", "s", "t", " ", "l", "a", "b", "o", "r", "u", "m", "."
-      ]
+      textContent: []
     }
+  },
+  mounted() {
+    this.textContent = this.placeHolderText.split('');
+    window.addEventListener("keydown", this.inputHandler);
   },
   methods: {
     inputHandler(event) {
-      if(!this.nonCharacterKeys.includes(event.key)) {
-        this.textContent.push(event.key);
+      if(this.canType === true) {
+        this.addInput(event);
       }
+    },
+
+    addInput(input) {
+      if(!this.nonCharacterKeys.includes(input.key)) {
+        if(this.lettersTyped === 0) this.textContent = [];
+        this.textContent.push(input.key);
+        this.lettersTyped++;
+        this.pauseTypingCursor();
+      }
+    },
+
+    focusTypingArea() {
+      this.canType = true;
+      console.log("The typing area is focused.");
+      this.startTypingCursor();
+    },
+
+    blurTypingArea() {
+      this.canType = false;
+      console.log("The typing area is blurred.");
+      this.stopTypingCursor();
+    },
+
+    pauseTypingCursor() {
+      this.$refs.typingCursor.style.animation = 'none';
+        setTimeout(() => {
+          this.$refs.typingCursor.style.animation = 'fadeinout 1s ease-in-out infinite'
+        }, 500);
+    },
+
+    startTypingCursor() {
+      this.$refs.typingCursor.style.animation = 'fadeinout 1s ease-in-out infinite'
+    },
+
+    stopTypingCursor() {
+      this.$refs.typingCursor.style.animation = 'none';
     }
   }
 }
@@ -50,5 +82,15 @@ export default {
   outline: none;
 
   font-size: 2rem;
+}
+
+.letter {
+
+}
+
+.typingCursor {
+  color: var(--color-dark);
+  background: var(--color-dark);
+  /* animation: fadeinout 1s ease-in-out infinite; */
 }
 </style>

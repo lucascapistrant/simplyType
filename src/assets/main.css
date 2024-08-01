@@ -3,6 +3,10 @@
   --color-light: white;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 html {
   font-size: 62.5%;
 }
@@ -26,4 +30,18 @@ button {
 @font-face {
   font-family: RedHatMono;
   src:  local("RedHatMono"), url("/fonts/RedHatMono/RedHatMono-VariableFont_wght.ttf");
+}
+
+/* animations */
+
+@keyframes fadeinout {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
