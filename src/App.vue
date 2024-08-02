@@ -22,4 +22,10 @@ export default {
 </script>
 
 <style>
+.container {
+  display: grid;
+  height: 100vh;
+  grid-template-rows: 10% 80% 10%;
+}
+
 </style>

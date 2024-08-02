@@ -14,7 +14,7 @@ export default {
   },
   methods: {
     printPage() {
-        console.log("Printing!")
+        window.print();
     },
     savePage() {
         console.log("Saving Page!")

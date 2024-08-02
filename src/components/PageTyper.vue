@@ -80,6 +80,7 @@ export default {
   height: 100%;
   border: none;
   outline: none;
+  display: block;
 
   font-size: 2rem;
 }
