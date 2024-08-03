@@ -12,7 +12,7 @@ export default {
     return {
       canType: false,
       isTyping: false,
-      lettersTyped: 0,
+      lettersTyped: localStorage.text ? localStorage.text.length : 0,
       placeHolderText: 'Start Typing Here',
       nonCharacterKeys: [
         "Shift", "Control", "Alt", "CapsLock", "Backspace", "Tab", "Enter", "Escape", 
@@ -25,8 +25,14 @@ export default {
     }
   },
   mounted() {
-    this.textContent = this.placeHolderText.split('');
+    if(localStorage.text) {
+      this.textContent = localStorage.text.split('');
+    } else {
+      this.textContent = this.placeHolderText.split('');
+    }
+    console.log(`Text content is set to: ${this.textContent}`);
     window.addEventListener("keydown", this.inputHandler);
+    console.log(`Global Variable is set to: ${this.$text}`)
   },
   methods: {
     inputHandler(event) {
@@ -39,6 +45,12 @@ export default {
       if(!this.nonCharacterKeys.includes(input.key)) {
         if(this.lettersTyped === 0) this.textContent = [];
         this.textContent.push(input.key);
+        // change array to string
+        let textString = '';
+        this.textContent.forEach(letter => {
+          textString = textString.concat('', letter);
+        })
+        this.$root.$text = textString;
         this.lettersTyped++;
         this.pauseTypingCursor();
       }
@@ -46,13 +58,11 @@ export default {
 
     focusTypingArea() {
       this.canType = true;
-      console.log("The typing area is focused.");
       this.startTypingCursor();
     },
 
     blurTypingArea() {
       this.canType = false;
-      console.log("The typing area is blurred.");
       this.stopTypingCursor();
     },
 
@@ -86,7 +96,7 @@ export default {
 }
 
 .letter {
-
+  
 }
 
 .typingCursor {
