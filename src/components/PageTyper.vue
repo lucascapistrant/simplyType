@@ -1,6 +1,12 @@
 <template>
   <div class="typingArea" ref="typingArea" @focus="focusTypingArea()" @blur="blurTypingArea()" tabindex="0">
-    <span v-for="(item, index) in textContent" :key="index" class="letter"> {{ item }}</span>
+    <span v-for="(item, index) in textContent" :key="index" class="letter">
+      <template v-if="item === '\n'">
+        <span class="newline"></span>
+        <span v-if="index < textContent.length - 1 && textContent[index + 1] === ' '" class="empty-line">&nbsp;</span>
+      </template>
+      <span v-else-if="!(index > 0 && textContent[index-1] === '\n' && item === ' ')">{{ item }}</span>
+    </span>
     <span class="typingCursor" ref="typingCursor">.</span>
   </div>
 </template>
@@ -15,7 +21,7 @@ export default {
       lettersTyped: localStorage.text ? localStorage.text.length : 0,
       placeHolderText: 'Start Typing Here',
       nonCharacterKeys: [
-        "Shift", "Control", "Alt", "CapsLock", "Backspace", "Tab", "Enter", "Escape", 
+        "Shift", "Control", "Alt", "CapsLock", "Backspace", "Tab", "Escape", 
         "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Insert", "Delete", "Home", 
         "End", "PageUp", "PageDown", "Function", "NumLock", "ScrollLock", "Pause", 
         "PrintScreen", "ContextMenu", "Meta", "Win", "AltGraph", "Intl", "ShiftLeft", 
@@ -30,9 +36,7 @@ export default {
     } else {
       this.textContent = this.placeHolderText.split('');
     }
-    console.log(`Text content is set to: ${this.textContent}`);
     window.addEventListener("keydown", this.inputHandler);
-    console.log(`Global Variable is set to: ${this.$text}`)
   },
   methods: {
     inputHandler(event) {
@@ -42,14 +46,30 @@ export default {
     },
 
     addInput(input) {
-      if(!this.nonCharacterKeys.includes(input.key)) {
+      if(!this.nonCharacterKeys.includes(input.key) || input.key === 'Enter') {
         if(this.lettersTyped === 0) this.textContent = [];
-        this.textContent.push(input.key);
-        // change array to string
-        let textString = '';
-        this.textContent.forEach(letter => {
-          textString = textString.concat('', letter);
-        })
+
+        // Handle Enter key
+        if(input.key === 'Enter') {
+          // Always add a newline character
+          this.textContent.push('\n');
+
+          // If the last non-space character was also a newline, add an extra space
+          let lastNonSpaceIndex = this.textContent.length - 2;
+          while (lastNonSpaceIndex >= 0 && this.textContent[lastNonSpaceIndex] === ' ') {
+            lastNonSpaceIndex--;
+          }
+
+          if(lastNonSpaceIndex >= 0 && this.textContent[lastNonSpaceIndex] === '\n') {
+            this.textContent.push(' ');
+          }
+        } else {
+          this.textContent.push(input.key);
+        }
+      
+        // Convert array to string
+        let textString = this.textContent.join('');
+
         this.$root.$text = textString;
         this.lettersTyped++;
         this.pauseTypingCursor();
@@ -84,24 +104,37 @@ export default {
 }
 </script>
 
-<style scoped >
+<style scoped>
 .typingArea {
   width: 100%;
+  max-width: 800px;
   height: 100%;
-  border: none;
+  border: 2px solid var(--color-dark);
   outline: none;
+  padding: 0 10px;
+  margin: 0 auto;
   display: block;
-
   font-size: 2rem;
+  white-space: pre-wrap;
 }
 
 .letter {
-  
+  display: inline;
+}
+
+.newline {
+  display: block;
+  width: 100%;
+}
+
+.empty-line {
+  display: block;
+  height: 1em; /* Adjust as needed */
 }
 
 .typingCursor {
   color: var(--color-dark);
   background: var(--color-dark);
-  /* animation: fadeinout 1s ease-in-out infinite; */
 }
+
 </style>

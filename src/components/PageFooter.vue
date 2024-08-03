@@ -17,9 +17,7 @@ export default {
         window.print();
     },
     savePage() {
-      console.log(`Current global text: ${this.$root.$text}`);
       localStorage.setItem('text', this.$root.$text);
-      console.log(`Saved ${this.$root.$text} to localstorage.`);
     }
   }
 }
