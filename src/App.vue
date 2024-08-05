@@ -2,7 +2,7 @@
   <div class="container">
     <PageHeader/>
     <PageTyper/>
-    <PageFooter/>
+    <PageFooter class="footer" />
     </div>
 </template>
 <!-- import Blank from './components/blank' -->
@@ -26,6 +26,10 @@ export default {
   display: grid;
   height: 100vh;
   grid-template-rows: 10% 80% 10%;
+}
+
+.footer {
+  position: fixed;
 }
 
 </style>
